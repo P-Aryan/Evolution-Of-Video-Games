@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <link rel="stylesheet" href="styles.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Playfair+Display:ital,wght@0,400;1,600&family=Lora:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="./js/section1.js"></script>
+    <script src="./js/section2.js"></script>
+</head>
+
+<body>
+    <header class="navbar">
+        <div class="navbar-left">
+            <img src="./imgs/icon.png" alt="Gaming Through the Ages Logo" class="navbar-logo">
+            <h1 class="navbar-title">Gaming Through the Ages</h1>
+        </div>
+        <nav class="navbar-right">
+            <ul>
+                <li><a href="#section1" class="nav-link">Gaming Trends</a></li>
+                <li><a href="#section2" class="nav-link">Esports Growth</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="blog-container">
+        <article id="section1" class="blog-post">
+            <div class="post-header">
+                <h2>Gaming Trends: A Journey Through Time</h2>
+                <div class="post-meta">
+                </div>
+            </div>
+
+            <div class="post-content">
+                <h3>The Evolution of Gaming</h3>
+                <p>Beginning in 1983, the North American gaming industry experienced a crash due to an oversaturated
+                    gaming console market and competition from computer gaming. It lasted a couple of years and led to
+                    the bankruptcy of several console companies. The Nintendo Entertainment System (NES) was the savior
+                    of the industry. It introduced many of the games that are still loved today, like Super Mario Bros
+                    and The Legend of Zelda.</p>
+
+                <p>In 1989, Nintendo again made waves by introducing Game Boy, a handheld device for gaming that came
+                    with the popular game Tetris. The 1990s saw a variety of games being released, like Street Fighter
+                    and Mortal Kombat. The PlayStation by Sony in 1995 took the gaming world by storm with original
+                    titles that took advantage of the platform's 3D capabilities. Some of the game series that are
+                    popular even now had their roots in this platform. Noteworthy mentions include Resident Evil, Gran
+                    Turismo, and Tekken.</p>
+
+                <p>In the 2000s, gaming consoles and PCs became more affordable. This resulted in game developers
+                    seeking international markets. Home consoles dominated the North American and European markets, and
+                    action-packed titles like Call of Duty became very popular. Meanwhile, in Asia, a different trend
+                    emerged. Countries like China and South Korea introduced Internet Cafes, which provided access to
+                    high-end computers for gaming at an affordable hourly rate.</p>
+
+                <div class="visualization-container">
+                    <div class="big-svg">
+                        <div class="svg-header">
+                            <h4>Gaming Trends: Genre Popularity Over Time</h4>
+                        </div>
+
+                        <div id="slider-container">
+                            <label for="minRating">Min Rating:</label>
+                            <input id="minRating" type="range" min="0" max="5" step="0.1" value="0">
+                            <span id="minRatingValue">0</span>
+
+                            <label for="maxRating">Max Rating:</label>
+                            <input id="maxRating" type="range" min="0" max="5" step="0.1" value="5">
+                            <span id="maxRatingValue">5</span>
+                        </div>
+
+                        <div class="filter-container">
+                            <form id="genreForm">
+                                <label><input type="checkbox" id="checkboxAdventure" value="Adventure" name="genre"
+                                        checked> Adventure</label><span class="tab"></span>
+                                <label><input type="checkbox" id="checkboxPlatform" value="Platform" name="genre"
+                                        checked> Platform</label><span class="tab"></span>
+                                <label><input type="checkbox" id="checkboxPuzzle" value="Puzzle" name="genre" checked>
+                                    Puzzle</label><span class="tab"></span>
+                                <label><input type="checkbox" id="checkboxRPG" value="RPG" name="genre" checked>
+                                    RPG</label><span class="tab"></span>
+                                <label><input type="checkbox" id="checkboxShooter" value="Shooter" name="genre" checked>
+                                    Shooter</label><span class="tab"></span>
+                                <label><input type="checkbox" id="checkboxStrategy" value="Strategy" name="genre"
+                                        checked> Strategy</label><span class="tab"></span>
+                                <label><input type="checkbox" id="checkboxOthers" value="Others" name="genre" checked>
+                                    Others</label><span class="tab"></span>
+                            </form>
+                        </div>
+
+                        <div class="graph bubble-chart-container">
+                            <svg id="bubble-chart" class="bubble-chart-svg"></svg>
+                        </div>
+
+                        <p class="svg-description">
+                            This bubble chart illustrates the evolution of gaming genres over the years, showcasing
+                            their popularity and average ratings. Adjust the sliders and filters to explore different
+                            trends.
+                        </p>
+
+                    </div>
+                </div>
+            </div>
+        </article>
+
+        <article id="section2" class="blog-post">
+            <div class="post-header">
+                <h2>The Rise of Esports: A New Era in Gaming</h2>
+                <div class="post-meta">
+                    <span class="post-date">Published on February 7, 2025</span>
+                    <span class="post-category">Esports</span>
+                </div>
+            </div>
+
+            <div class="post-content">
+                <h3>Introduction</h3>
+                <p>The rise of Esports has been one of the most transformative developments in gaming history. What
+                    began as friendly competitions among small groups of enthusiasts has now evolved into a
+                    billion-dollar industry with professional teams, massive tournaments, and global audiences.</p>
+
+                <p>The roots of Esports can be traced back to the 1980s, with the first recognized gaming competition
+                    being held in 1980: the Space Invaders Championship, which attracted over 10,000 participants in the
+                    United States. However, it wasn't until the late 1990s that competitive gaming truly began to take
+                    shape with the advent of games like StarCraft in South Korea. The country became the epicenter of
+                    the Esports revolution, establishing professional leagues, dedicated gaming channels, and producing
+                    some of the first Esports celebrities.</p>
+
+                <div class="visualization-container">
+                    <div class="big-svg">
+                        <div class="svg-header">
+                            <h4>Line Chart: Popular Esports Games Over Time</h4>
+                        </div>
+
+                        <div class="graph">
+                            <svg id="linec_svg" width="800" height="400"></svg>
+                        </div>
+
+                        <div class="graph-controls">
+                            <label for="gameSelector">Select Game:</label>
+                            <select class="selector" id="gameSelector">
+                                <option value="" selected disabled hidden>Game</option>
+                                <option value="Super Smash Bros.">Super Smash Bros</option>
+                                <option value="Age of Empires II">Age of Empires II</option>
+                                <option value="League of Legends">League of Legends</option>
+                                <option value="Dota 2">Dota 2</option>
+                                <option value="Rocket League">Rocket League</option>
+                                <option value="Counter-Strike: Global Offensive">CS:GO</option>
+                                <option value="Fortnite">Fortnite</option>
+                                <option value="Apex Legends">Apex Legends</option>
+                                <option value="VALORANT">VALORANT</option>
+                                <option value="Call of Duty 4: Modern Warfare">COD: Modern Warfare</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <p>
+                    By the 2000s, Esports had spread globally, with tournaments for games like Counter-Strike,
+                    Warcraft III, and Dota becoming household
+                    names in the gaming community. The launch of live-streaming platforms like Twitch in 2011
+                    accelerated Esports’ growth by allowing fans
+                    to watch matches live from anywhere in the world. Games like League of Legends, Overwatch,
+                    and Fortnite took the industry to new heights,
+                    drawing millions of viewers and offering prize pools in the tens of millions of dollars.
+                </p>
+                <div class="visualization-container">
+
+                    <div class="big-svg">
+                        <div class="svg-header">
+                            <h4>Bar Chart: Esports Revenue by Game</h4>
+                        </div>
+
+                        <div class="graph">
+                            <svg id="barc_svg" width="800" height="400"></svg>
+                        </div>
+                    </div>
+                </div>
+                <p>
+                    Esports events have now rivaled traditional sports in scale and popularity. For example, The
+                    International, the annual Dota 2 championship, broke
+                    records with a prize pool exceeding $40 million in 2021. Similarly, Fortnite World Cup and
+                    League of Legends World Championship attract millions of
+                    viewers worldwide, cementing Esports as a legitimate form of entertainment and competition.
+                </p>
+                <div class="visualization-container">
+                    <div class="big-svg">
+                        <div class="svg-header">
+                            <h4>Pie Chart: Gaming Trends by Region</h4>
+                        </div>
+
+                        <div class="graph">
+                            <div id="piechart"></div>
+                        </div>
+                    </div>
+                </div>
+                <p>
+                    In the 2000s, gaming consoles and PCs became more affordable. This resulted in game
+                    developers seeking international markets. Home consoles dominated
+                    the North American and European markets, and action-packed titles like Call of Duty
+                    became
+                    very popular. Meanwhile, in Asia, a different trend emerged.
+                    Countries like China and South Korea introduced Internet Cafes, which provided access to
+                    high-end computers for gaming at an affordable hourly rate.
+                </p>
+            </div>
+
+            </div>
+            </div>
+        </article>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Gaming Through the Ages</p>
+    </footer>
+
+</body>
+
+</html>
