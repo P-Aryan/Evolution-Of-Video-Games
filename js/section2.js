@@ -1,103 +1,36 @@
-let data, EsportHistory, GeneralEsports;
+// Section 2 loads analysis-ready JSON produced by the Python pipeline
+// (pipeline/process_data.py). All grouping/aggregation happens offline, so the
+// browser just renders pre-computed views.
+const DATA_DIR = './data/processed';
 
 document.addEventListener('DOMContentLoaded', function () {
     Promise.all([
-        d3.csv('./test/data/Video_Games_Sales.csv'),
-        d3.csv('./test/data/Historical_Esport_Data.csv'),
-        d3.csv('./test/data/General_Esport_Data.csv')
-    ]).then(function (values) {
-        console.log("Datasets are loaded!!");
-        data = values[0];
-        EsportHistory = values[1];
-        GeneralEsports = values[2];
-
-        const regions = ["NA_Sales", "EU_Sales", "JP_Sales", "Other_Sales"];
-        const totalSales = {};
-        const topGames = {};
-
-        regions.forEach(region => {
-            totalSales[region] = 0;
-            topGames[region] = [];
-        });
-
-        data.forEach(row => {
-            regions.forEach(region => {
-                const sales = parseFloat(row[region]) || 0;
-                totalSales[region] += sales;
-
-                if (sales > 0) {
-                    topGames[region].push({ name: row["Name"], sales });
-                }
-            });
-        });
-
-        Object.keys(topGames).forEach(region => {
-            topGames[region].sort((a, b) => b.sales - a.sales);
-            topGames[region] = topGames[region].slice(0, 5);
-        });
-
-        const pieData = Object.entries(totalSales).map(([region, sales]) => ({
-            region,
-            sales,
-            topGames: topGames[region]
-        }));
-
-        console.log("Pie Chart Data:", pieData);
+        d3.json(`${DATA_DIR}/sales_by_region.json`),
+        d3.json(`${DATA_DIR}/esports_timeline.json`),
+        d3.json(`${DATA_DIR}/esports_by_genre.json`),
+        d3.json(`${DATA_DIR}/sales_over_time.json`),
+        d3.json(`${DATA_DIR}/top_publishers.json`)
+    ]).then(function ([pieData, esportsTimeline, genreData, salesOverTime, topPublishers]) {
+        // Pie chart: regional sales share + each region's top 5 games.
         piechart(pieData);
 
-        EsportHistory.forEach(row => {
-            row.Earnings = parseFloat(row.Earnings);
-            row.Date = new Date(row.Date);
-        });
-
-        let adjusted_default_Data = d3.rollups(
-            EsportHistory,
-            v => d3.sum(v, d => d.Earnings),
-            d => d.Date.getFullYear()
-        ).map(([Year, Earnings]) => ({ Year, Earnings }));
-
-        console.log("Default Line Chart Data:", adjusted_default_Data);
-        LineChart(adjusted_default_Data);
-
-        let selection = document.getElementById("gameSelector");
+        // Line chart: total esports earnings per year, filterable by game.
+        LineChart(esportsTimeline["All"]);
+        const selection = document.getElementById("gameSelector");
         selection.addEventListener("change", function () {
-            const gameName = selection.value;
-            let Selected_Game = EsportHistory.filter(d => d.Game === gameName);
-            let adjusted_data = d3.rollups(
-                Selected_Game,
-                v => d3.sum(v, d => d.Earnings),
-                d => d.Date.getFullYear()
-            ).map(([Year, Earnings]) => ({ Year, Earnings }));
-
-            console.log(`Filtered Data for Game "${gameName}":`, adjusted_data);
-            LineChart(adjusted_data);
+            LineChart(esportsTimeline[selection.value] || []);
         });
 
-        GeneralEsports.forEach(row => {
-            row.TotalEarnings = parseFloat(row.TotalEarnings);
-            row.TotalTournaments = parseInt(row.TotalTournaments, 10);
-            row.TotalPlayers = parseInt(row.TotalPlayers, 10);
-        });
-
-        let genreData = d3.rollups(
-            GeneralEsports,
-            v => ({
-                totalEarnings: d3.sum(v, d => d.TotalEarnings),
-                totalTournaments: d3.sum(v, d => d.TotalTournaments),
-                totalPlayers: d3.sum(v, d => d.TotalPlayers)
-            }),
-            d => d.Genre
-        ).map(([genre, values]) => ({
-            genre,
-            totalEarnings: values.totalEarnings,
-            totalTournaments: values.totalTournaments,
-            totalPlayers: values.totalPlayers
-        }));
-
-        console.log("Bar Chart Data:", genreData);
+        // Bar chart: esports earnings/tournaments/players by genre.
         barChart(genreData);
+
+        // Stacked-area chart: regional sales by release year.
+        areaChart(salesOverTime);
+
+        // Horizontal bar chart: best-selling publishers.
+        publisherChart(topPublishers);
     }).catch(error => {
-        console.error("Error loading or processing CSV:", error);
+        console.error("Error loading processed data:", error);
     });
 });
 
@@ -235,9 +168,10 @@ function barChart(data) {
             tooltip
                 .style("opacity", 1)
                 .html(`
-                    <span class="tooltip-film"><strong>${d.genre}</strong></span><br>
-                    <span class="tooltip-director">Total Tournaments: ${d.totalTournaments.toLocaleString()}</span><br>
-                    <span class="tooltip-writer">Total Players: ${d.totalPlayers.toLocaleString()}</span>
+                    <span class="tooltip-title"><strong>${d.genre}</strong></span><br>
+                    <span class="tooltip-sub">Total Earnings: $${d3.format(",.0f")(d.totalEarnings)}</span><br>
+                    <span class="tooltip-sub">Total Tournaments: ${d.totalTournaments.toLocaleString()}</span><br>
+                    <span class="tooltip-sub">Total Players: ${d.totalPlayers.toLocaleString()}</span>
                 `)
                 .style("left", event.pageX + 10 + "px")
                 .style("top", event.pageY - 20 + "px");
@@ -260,8 +194,10 @@ function barChart(data) {
         .attr("y", d => yscale(d.totalEarnings) - 5)
         .attr("text-anchor", "middle")
         .attr("font-size", 12)
-        .attr("fill", "black")
-        .text(d => d3.format(",")(d.totalEarnings));
+        .attr("fill", "#2b2b33")
+        .attr("font-family", "'Poppins', sans-serif")
+        // Compact currency (e.g. "$644M") so labels don't overrun neighbouring bars.
+        .text(d => "$" + d3.format(".3s")(d.totalEarnings).replace("G", "B"));
 }
 
 function piechart(pieData) {
@@ -313,9 +249,9 @@ function piechart(pieData) {
 
             tooltip.style("opacity", 1)
                 .html(`
-                    <span class="tooltip-film"><strong>${d.data.region}</strong></span><br>
-                    <span class="tooltip-director">Total Sales: $${d.data.sales.toFixed(2)}M</span><br>
-                    <span class="tooltip-writer"><strong>Top 5 Games:</strong></span>
+                    <span class="tooltip-title"><strong>${d.data.label}</strong></span><br>
+                    <span class="tooltip-sub">Total Sales: $${d.data.sales.toFixed(2)}M</span><br>
+                    <span class="tooltip-sub"><strong>Top 5 Games:</strong></span>
                     <ul>${topGamesHtml}</ul>
                 `)
                 .style("left", event.pageX + 10 + "px")
@@ -337,5 +273,180 @@ function piechart(pieData) {
             .style("fill", "#000000")
             .style("font-family", "'Poppins', sans-serif")
             .style("font-weight", "normal")
-            .text(d => d.data.region);
+            .text(d => d.data.label);
+}
+
+// --------------------------------------------------------------------------- //
+// Stacked-area chart: regional video-game sales by release year
+// --------------------------------------------------------------------------- //
+function areaChart(data) {
+    d3.select("#areac_svg").selectAll("*").remove();
+
+    const container = d3.select("#areac_svg").node().parentNode;
+    const containerWidth = container.getBoundingClientRect().width;
+
+    const margin = { top: 30, right: 160, bottom: 50, left: 70 };
+    const width = containerWidth - margin.left - margin.right;
+    const height = 400 - margin.top - margin.bottom;
+
+    const regions = ["NA_Sales", "EU_Sales", "JP_Sales", "Other_Sales"];
+    const labels = {
+        NA_Sales: "North America", EU_Sales: "Europe",
+        JP_Sales: "Japan", Other_Sales: "Rest of World"
+    };
+    const color = d3.scaleOrdinal()
+        .domain(regions)
+        .range(["#1f77b4", "#ff7f0e", "#d62728", "#2ca02c"]);
+
+    const svg = d3.select("#areac_svg")
+        .attr("width", containerWidth)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform", `translate(${margin.left},${margin.top})`);
+
+    const x = d3.scaleLinear()
+        .domain(d3.extent(data, d => d.year))
+        .range([0, width]);
+
+    const stacked = d3.stack().keys(regions)(data);
+
+    const y = d3.scaleLinear()
+        .domain([0, d3.max(stacked[stacked.length - 1], d => d[1])])
+        .nice()
+        .range([height, 0]);
+
+    svg.append("g")
+        .attr("transform", `translate(0,${height})`)
+        .call(d3.axisBottom(x).tickFormat(d3.format("d")));
+
+    svg.append("g").call(d3.axisLeft(y));
+
+    svg.append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("x", -height / 2).attr("y", -50)
+        .attr("text-anchor", "middle").style("font-size", "12px")
+        .text("Sales (millions of units)");
+
+    const area = d3.area()
+        .x(d => x(d.data.year))
+        .y0(d => y(d[0]))
+        .y1(d => y(d[1]))
+        .curve(d3.curveCatmullRom);
+
+    const tooltip = d3.select("body").append("div")
+        .attr("class", "tooltip").style("opacity", 0);
+
+    svg.selectAll(".layer")
+        .data(stacked)
+        .enter().append("path")
+        .attr("class", "layer")
+        .attr("fill", d => color(d.key))
+        .attr("opacity", 0.85)
+        .attr("d", area)
+        .on("mousemove", function (event, d) {
+            d3.select(this).attr("opacity", 1);
+            tooltip.style("opacity", 1)
+                .html(`<span class="tooltip-title">${labels[d.key]}</span>`)
+                .style("left", event.pageX + 10 + "px")
+                .style("top", event.pageY - 20 + "px");
+        })
+        .on("mouseout", function () {
+            d3.select(this).attr("opacity", 0.85);
+            tooltip.style("opacity", 0);
+        });
+
+    // Legend
+    const legend = svg.append("g")
+        .attr("transform", `translate(${width + 20}, 0)`);
+    regions.forEach((r, i) => {
+        const row = legend.append("g").attr("transform", `translate(0, ${i * 22})`);
+        row.append("rect").attr("width", 14).attr("height", 14)
+            .attr("fill", color(r)).attr("opacity", 0.85);
+        row.append("text").attr("x", 20).attr("y", 12)
+            .style("font-size", "12px").text(labels[r]);
+    });
+}
+
+// --------------------------------------------------------------------------- //
+// Horizontal bar chart: best-selling publishers by global sales
+// --------------------------------------------------------------------------- //
+function publisherChart(data) {
+    d3.select("#pubc_svg").selectAll("*").remove();
+
+    const container = d3.select("#pubc_svg").node().parentNode;
+    const containerWidth = container.getBoundingClientRect().width;
+
+    const margin = { top: 20, right: 80, bottom: 40, left: 150 };
+    const width = containerWidth - margin.left - margin.right;
+    const height = data.length * 32;
+
+    const svg = d3.select("#pubc_svg")
+        .attr("width", containerWidth)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform", `translate(${margin.left},${margin.top})`);
+
+    const x = d3.scaleLinear()
+        .domain([0, d3.max(data, d => d.globalSales)])
+        .range([0, width]);
+
+    const y = d3.scaleBand()
+        .domain(data.map(d => d.publisher))
+        .range([0, height])
+        .padding(0.18);
+
+    svg.append("g")
+        .attr("transform", `translate(0,${height})`)
+        .call(d3.axisBottom(x).ticks(6));
+
+    // Trim corporate suffixes so axis labels fit; the tooltip keeps the full name.
+    const shortPublisher = name => name
+        .replace(/ (Computer|Digital) Entertainment$/, "")
+        .replace(/ Game Studios$/, "")
+        .replace(/ Interactive$/, "")
+        .replace(/ Games$/, "");
+
+    svg.append("g").call(d3.axisLeft(y).tickFormat(shortPublisher)).selectAll("text")
+        .style("font-size", "12px");
+
+    const tooltip = d3.select("body").append("div")
+        .attr("class", "tooltip").style("opacity", 0);
+
+    svg.selectAll(".bar")
+        .data(data)
+        .enter().append("rect")
+        .attr("class", "bar")
+        .attr("x", 0)
+        .attr("y", d => y(d.publisher))
+        .attr("width", d => x(d.globalSales))
+        .attr("height", y.bandwidth())
+        .attr("fill", "#C70039")
+        .on("mouseover", function (event, d) {
+            d3.select(this).attr("opacity", 0.7);
+            tooltip.style("opacity", 1)
+                .html(`
+                    <span class="tooltip-title">${d.publisher}</span><br>
+                    <span class="tooltip-sub">Global Sales: ${d.globalSales.toLocaleString()}M units</span><br>
+                    <span class="tooltip-sub">Titles Released: ${d.titles.toLocaleString()}</span>
+                `)
+                .style("left", event.pageX + 10 + "px")
+                .style("top", event.pageY - 20 + "px");
+        })
+        .on("mousemove", function (event) {
+            tooltip.style("left", event.pageX + 10 + "px")
+                .style("top", event.pageY - 20 + "px");
+        })
+        .on("mouseout", function () {
+            d3.select(this).attr("opacity", 1);
+            tooltip.style("opacity", 0);
+        });
+
+    svg.selectAll(".value")
+        .data(data)
+        .enter().append("text")
+        .attr("x", d => x(d.globalSales) + 6)
+        .attr("y", d => y(d.publisher) + y.bandwidth() / 2)
+        .attr("dy", "0.35em")
+        .style("font-size", "11px")
+        .text(d => d3.format(",.0f")(d.globalSales) + "M");
 }

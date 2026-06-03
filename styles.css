@@ -1,118 +1,95 @@
-/* Existing CSS remains, adding new blog-specific styles */
-body, html {
+/* =========================================================================
+   Gaming Through the Ages — visual system
+   Tokens, hero, chapter framing, charts, footer.
+   ========================================================================= */
+:root {
+    --ink: #14121c;
+    --ink-soft: #201d2e;
+    --bg: #f6f4ef;
+    --card: #ffffff;
+    --text: #2b2b33;
+    --muted: #6c6c78;
+    --line: #e7e3da;
+    --accent: #ff2d75;
+    --accent-2: #7c3aed;
+    --grad: linear-gradient(135deg, #ff2d75 0%, #7c3aed 100%);
+    --shadow: 0 18px 50px rgba(20, 18, 28, 0.10);
+    --maxw: 1180px;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body,
+html {
     margin: 0;
     padding: 0;
     font-family: 'Lora', serif;
     line-height: 1.8;
-    background-color: #F7F7F7;
-    color: #333333;
+    background-color: var(--bg);
+    color: var(--text);
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
 }
 
-.blog-container {
-    max-width: 1500px;
-    margin: 0 auto;
-    padding: 40px 20px;
+em {
+    font-style: italic;
+    color: var(--ink);
 }
 
-.blog-post {
-    background-color: #FFFFFF;
-    border-radius: 15px;
-    margin-bottom: 60px;
-    padding: 40px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+strong {
+    color: var(--ink);
+    font-weight: 600;
 }
 
-.post-header {
-    text-align: center;
-    margin-bottom: 40px;
-    padding-bottom: 20px;
-    border-bottom: 1px solid #E6E6E6;
-}
-
-.post-header h2 {
-    font-family: 'Playfair Display', serif;
-    font-size: 2.5rem;
-    color: #333333;
-    margin-bottom: 20px;
-}
-
-.post-meta {
-    color: #666666;
-    font-size: 0.9rem;
+/* ----------------------------- Eyebrow label ---------------------------- */
+.eyebrow {
     font-family: 'Poppins', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.22em;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--accent);
+    margin: 0 0 14px;
 }
 
-.post-meta span {
-    margin: 0 10px;
+.eyebrow-light {
+    color: #ff7eb0;
 }
 
-.post-content {
-    font-size: 1.1rem;
-    line-height: 1.8;
-}
-
-.post-content h3 {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.8rem;
-    color: #333333;
-    margin: 40px 0 20px;
-}
-
-.post-content p {
-    margin-bottom: 25px;
-    color: #444444;
-}
-
-.visualization-container {
-    margin: 40px 0;
-    padding: 20px;
-    background-color: #F9F9F9;
-    border-radius: 10px;
-}
-
-/* Preserve existing visualization styles */
-.big-svg {
-    margin: 40px 0;
-}
-
-/* Updated navbar styles */
+/* ============================== NAVBAR ============================== */
 .navbar {
     position: sticky;
     top: 0;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 10px 40px;
-    background: #FFFFFF;
-    border-bottom: 2px solid #333333;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 12px 36px;
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--line);
     z-index: 1000;
 }
 
 .navbar-left {
     display: flex;
     align-items: center;
-    gap: 15px;
+    gap: 12px;
 }
 
 .navbar-logo {
-    height: 40px; /* Reduced from 70px */
+    height: 34px;
     width: auto;
     object-fit: contain;
 }
 
 .navbar-title {
     font-family: 'Playfair Display', serif;
-    font-size: 1.5rem; /* Slightly reduced */
-    font-weight: 600;
+    font-size: 1.2rem;
+    font-weight: 700;
     font-style: italic;
-    color: #333333;
-    margin: 0;
-}
-
-.navbar-right {
-    display: flex;
-    justify-content: flex-end;
+    color: var(--ink);
 }
 
 .navbar-right ul {
@@ -120,63 +97,429 @@ body, html {
     margin: 0;
     padding: 0;
     display: flex;
-    gap: 20px;
-}
-
-.navbar-right ul li {
-    display: inline;
+    gap: 8px;
 }
 
 .navbar-right ul li .nav-link {
-    color: #333333;
+    color: var(--ink);
     font-family: 'Poppins', sans-serif;
     font-weight: 500;
     text-decoration: none;
-    font-size: 1rem;
-    padding: 8px 12px;
-    transition: all 0.3s ease;
-    border-radius: 5px;
+    font-size: 0.86rem;
+    letter-spacing: 0.02em;
+    padding: 8px 14px;
+    border-radius: 999px;
+    transition: all 0.25s ease;
 }
 
 .navbar-right ul li .nav-link:hover {
-    color: #D4AF37;
-    background-color: rgba(212, 175, 55, 0.1);
+    color: #fff;
+    background: var(--grad);
 }
 
+/* =============================== HERO =============================== */
+.hero {
+    position: relative;
+    overflow: hidden;
+    min-height: 88vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: #fff;
+    background:
+        radial-gradient(1200px 600px at 50% -10%, #2a2140 0%, transparent 60%),
+        linear-gradient(160deg, #1a1626 0%, #0d0b14 100%);
+}
+
+/* faint grid overlay for an arcade-screen feel */
+.hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image:
+        linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+    background-size: 46px 46px;
+    mask-image: radial-gradient(circle at 50% 40%, black 0%, transparent 75%);
+    pointer-events: none;
+}
+
+.hero-glow {
+    position: absolute;
+    width: 620px;
+    height: 620px;
+    border-radius: 50%;
+    background: var(--grad);
+    filter: blur(140px);
+    opacity: 0.35;
+    top: -120px;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+    max-width: 880px;
+    padding: 90px 24px;
+}
+
+.hero-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: clamp(2.6rem, 7vw, 5.2rem);
+    line-height: 1.02;
+    letter-spacing: -0.02em;
+    margin: 0 0 22px;
+    color: #fff;
+}
+
+.hero-sub {
+    font-family: 'Lora', serif;
+    font-size: clamp(1rem, 2.2vw, 1.3rem);
+    line-height: 1.7;
+    color: #cfc9da;
+    max-width: 640px;
+    margin: 0 auto 46px;
+}
+
+.hero-stats {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 14px;
+    margin-bottom: 52px;
+}
+
+.stat {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    border-radius: 14px;
+    padding: 18px 22px;
+    min-width: 150px;
+    backdrop-filter: blur(4px);
+}
+
+.stat-num {
+    display: block;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 1.9rem;
+    background: var(--grad);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.stat-label {
+    display: block;
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.74rem;
+    letter-spacing: 0.04em;
+    color: #b7b1c4;
+    margin-top: 4px;
+}
+
+.scroll-cue {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    color: #cfc9da;
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+}
+
+.scroll-arrow {
+    font-size: 1.4rem;
+    animation: bob 1.8s ease-in-out infinite;
+}
+
+@keyframes bob {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(7px); }
+}
+
+/* ============================ CHAPTERS ============================ */
+.blog-container {
+    max-width: var(--maxw);
+    margin: 0 auto;
+    padding: 20px 24px 40px;
+}
+
+.chapter {
+    padding: 80px 0 40px;
+    border-bottom: 1px solid var(--line);
+}
+
+.chapter:last-child {
+    border-bottom: none;
+}
+
+.chapter-head {
+    position: relative;
+    text-align: center;
+    max-width: 760px;
+    margin: 0 auto 30px;
+}
+
+.chapter-number {
+    display: block;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 3.4rem;
+    line-height: 1;
+    background: var(--grad);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 6px;
+}
+
+.chapter-head h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 4.5vw, 3rem);
+    font-weight: 700;
+    color: var(--ink);
+    margin: 6px 0 18px;
+}
+
+.chapter-lede {
+    font-size: 1.18rem;
+    line-height: 1.7;
+    color: #4a4a55;
+}
+
+/* --------------------------- Body prose --------------------------- */
+.post-content {
+    font-size: 1.12rem;
+    line-height: 1.85;
+    max-width: 760px;
+    margin: 0 auto;
+}
+
+.post-content p {
+    margin: 0 0 26px;
+    color: #44444f;
+}
+
+.closing-note {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 1.3rem;
+    line-height: 1.6;
+    color: var(--ink);
+    text-align: center;
+    margin: 40px auto 0;
+}
+
+/* --------------------------- Pull quote --------------------------- */
+.pull-quote {
+    margin: 44px 0;
+    padding: 8px 0 8px 28px;
+    border-left: 4px solid transparent;
+    border-image: var(--grad) 1;
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 1.5rem;
+    line-height: 1.5;
+    color: var(--ink);
+}
+
+/* ------------------------- Stat callouts -------------------------- */
+.callout-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+    margin: 38px 0;
+}
+
+.callout {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-top: 3px solid var(--accent);
+    border-radius: 12px;
+    padding: 22px 20px;
+    text-align: center;
+    box-shadow: 0 6px 18px rgba(20, 18, 28, 0.05);
+}
+
+.callout-num {
+    display: block;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 2.1rem;
+    color: var(--accent-2);
+    line-height: 1.1;
+}
+
+.callout-label {
+    display: block;
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.82rem;
+    color: var(--muted);
+    margin-top: 8px;
+    line-height: 1.45;
+}
+
+/* ====================== VISUALIZATION CARDS ====================== */
+.visualization-container {
+    margin: 44px 0;
+}
+
+.big-svg {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 28px 26px 22px;
+    box-shadow: var(--shadow);
+}
+
+.svg-header {
+    text-align: center;
+    margin-bottom: 14px;
+}
+
+.svg-header h4 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    color: var(--ink);
+    margin: 0 0 6px;
+}
+
+.svg-subtitle {
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.92rem;
+    color: var(--muted);
+    max-width: 620px;
+    margin: 0 auto;
+    line-height: 1.5;
+}
+
+.svg-description {
+    font-size: 0.95rem;
+    color: var(--muted);
+    font-style: italic;
+    text-align: center;
+    max-width: 700px;
+    margin: 16px auto 0;
+}
+
+/* Chart containers scale with their parent */
+.graph {
+    width: 100%;
+    overflow-x: auto;
+    margin-top: 6px;
+}
+
+.graph svg {
+    max-width: 100%;
+}
+
+.bubble-chart-svg {
+    width: 100%;
+    max-width: 1300px;
+    height: auto;
+}
+
+#piechart svg {
+    display: block;
+    margin: 0 auto;
+}
+
+/* Controls wrap and stay usable on narrow screens */
+#slider-container,
+.filter-container,
+.graph-controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px 16px;
+    justify-content: center;
+    margin: 14px 0;
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.88rem;
+    color: var(--ink);
+}
+
+.filter-container label,
+#slider-container label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.filter-container .tab {
+    display: none;
+}
+
+input[type="range"] {
+    accent-color: var(--accent);
+}
+
+input[type="checkbox"] {
+    accent-color: var(--accent-2);
+}
+
+.selector {
+    font-family: 'Poppins', sans-serif;
+    padding: 7px 12px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: #fff;
+    color: var(--ink);
+    cursor: pointer;
+}
+
+/* ============================= TOOLTIPS ============================= */
 .tooltip {
     position: absolute;
-    background-color: rgba(0, 0, 0, 0.7);
-    color: #FFFFFF;
-    padding: 10px;
-    border-radius: 5px;
-    font-family: 'Special Elite', cursive;
+    background-color: rgba(20, 18, 28, 0.92);
+    color: #fff;
+    padding: 11px 13px;
+    border-radius: 8px;
+    font-family: 'Poppins', sans-serif;
     font-size: 14px;
     pointer-events: none;
     z-index: 1000;
-    line-height: 1.4;
-    text-align: center;
-    max-width: 250px;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
+    line-height: 1.45;
+    text-align: left;
+    max-width: 260px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
 }
 
-.tooltip-film {
-    font-size: 19px;
-    font-family: 'Special Elite', cursive;
-    font-weight: bold;
+.tooltip ul {
+    margin: 6px 0 0;
+    padding-left: 18px;
 }
 
-.tooltip-director,
-.tooltip-writer {
+/* Keep tooltip text light — overrides the global dark <strong>/<em> colors */
+.tooltip,
+.tooltip strong,
+.tooltip em,
+.tooltip-title,
+.tooltip-sub {
+    color: #fff;
+}
+
+.tooltip-title {
+    font-size: 15px;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+}
+
+.tooltip-sub {
+    font-size: 12px;
+    font-family: 'Poppins', sans-serif;
+}
+
+.tooltip-meta {
     font-size: 11px;
-    font-family: 'Special Elite', cursive;
-    font-style: italic;
-}
-
-.tooltip-rank,
-.tooltip-vote {
-    font-size: 10px;
-    font-family: 'Special Elite', cursive;
-    color: #CCCCCC;
+    font-family: 'Poppins', sans-serif;
+    color: #cccccc;
 }
 
 .tooltip-wrapper {
@@ -185,21 +528,110 @@ body, html {
     z-index: 10;
 }
 
-/* Responsive adjustments */
+.tooltip-background {
+    fill: rgba(20, 18, 28, 0.92);
+}
+
+/* ============================== FOOTER ============================== */
+.site-footer {
+    background: var(--ink);
+    color: #cfc9da;
+    text-align: center;
+    padding: 56px 24px;
+}
+
+.footer-inner {
+    max-width: 640px;
+    margin: 0 auto;
+}
+
+.footer-title {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 1.5rem;
+    color: #fff;
+    margin: 0 0 8px;
+}
+
+.footer-meta {
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.9rem;
+    margin: 0 0 14px;
+    color: #b7b1c4;
+}
+
+.footer-sources {
+    font-size: 0.85rem;
+    color: #8d8799;
+    margin: 0 0 22px;
+}
+
+.footer-copy {
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.78rem;
+    color: #6d6878;
+    margin: 0;
+}
+
+/* ======================= SCROLL REVEAL ======================= */
+.reveal {
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+    will-change: opacity, transform;
+}
+
+.reveal-visible {
+    opacity: 1;
+    transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .reveal {
+        opacity: 1;
+        transform: none;
+        transition: none;
+    }
+}
+
+/* =========================== RESPONSIVE =========================== */
 @media (max-width: 768px) {
-    .blog-container {
-        padding: 20px;
-    }
-    
-    .blog-post {
-        padding: 20px;
-    }
-    
-    .post-header h2 {
-        font-size: 2rem;
-    }
-    
     .navbar {
-        padding: 10px 20px;
+        flex-direction: column;
+        gap: 8px;
+        padding: 10px 18px;
+    }
+
+    .navbar-right ul {
+        gap: 4px;
+    }
+
+    .hero-content {
+        padding: 70px 20px;
+    }
+
+    .chapter {
+        padding: 56px 0 30px;
+    }
+
+    .chapter-lede {
+        font-size: 1.05rem;
+    }
+
+    .post-content {
+        font-size: 1.02rem;
+    }
+
+    .pull-quote {
+        font-size: 1.2rem;
+    }
+
+    .callout-row {
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
+
+    .big-svg {
+        padding: 18px 14px 16px;
     }
 }

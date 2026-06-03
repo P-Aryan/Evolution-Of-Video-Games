@@ -36,9 +36,13 @@ function bubbleChart() {
 
     
 
+    var svgW = width + margin.left + margin.right;
+    var svgH = height + margin.top + margin.bottom - 800;
+
     var svg = d3.select("#bubble-chart")
-        .attr('width', width + margin.left + margin.right )
-        .attr('height', height + margin.top + margin.bottom - 800)
+        // viewBox + responsive CSS lets the fixed-layout chart scale to any width.
+        .attr('viewBox', '0 0 ' + svgW + ' ' + svgH)
+        .attr('preserveAspectRatio', 'xMidYMid meet')
         .style("display", "block")
         .style("margin", "0px auto 0px auto")
         .style("background", back_col)
@@ -79,41 +83,10 @@ function bubbleChart() {
         .attr("offset", "100%")
         .attr("style", "stop-color:red; stop-opacity:0")
 
-    function parsePlays(plays) {
-        if (plays.endsWith('K')) {
-            return parseFloat(plays.replace('K', '')) * 1000;
-        } else {
-            return parseFloat(plays);
-        }
-    }
-
-    function extractYear(dateString) {
-        const date = new Date(dateString);
-        if (isNaN(date)) {
-            return 2025;
-        }
-        return date.getFullYear();
-    }
-
-    function giveGenre(genres) {
-        const topGenres = ['Puzzle', 'Shooter', 'Strategy', 'RPG', 'Adventure', 'Platform'];
-        for (const genre of topGenres) {
-            if (genres.includes(genre)) {
-                return genre;
-            }
-        }
-        return 'Others';
-    }
-
-    d3.csv('./test/data/Popular_Games.csv', ({Title, Team, Plays, Rating, Genres, "Release Date": ReleaseDate}) => ({
-        Title: Title,
-        Team: Team,
-        Plays: parsePlays(Plays),
-        Rating: +Rating,
-        Genres: giveGenre(Genres),
-        ReleaseYear: extractYear(ReleaseDate)
-    })).then(value => {
-        data = value
+    // Data is pre-cleaned by the Python pipeline (pipeline/process_data.py):
+    // play counts parsed, release years extracted, genres bucketed, teams
+    // normalized. The browser just loads analysis-ready JSON.
+    d3.json('./data/processed/genre_bubbles.json').then(data => {
 
         var f = d3.format(".0f");
         var comma = d3.format(",");
@@ -314,7 +287,7 @@ function bubbleChart() {
                 filteredData = nodes.filter(d =>
                     d.Rating >= minRating &&
                     d.Rating <= maxRating &&
-                    selectedGenres.includes(d.Genres)
+                    selectedGenres.includes(d.Genre)
                 );
 
                 lines_grey.remove();
@@ -340,7 +313,7 @@ function bubbleChart() {
                     .attr("cx", d => d.x + margin.left * 3)
                     .attr("cy", d => d.y)
                     .style("fill", "white")
-                    .style("stroke", d => genreColors[d.Genres] || 'black')
+                    .style("stroke", d => genreColors[d.Genre] || 'black')
                     .style("stroke-width", d => rate_stroke(d.Rating) * 2)
                     .style("stroke-opacity", d => rate_opacity(d.Rating))
                     .style("opacity", 1);
@@ -348,15 +321,8 @@ function bubbleChart() {
                 newGames
                     .on("mousemove", function (event, d) {
                         tooltipTitle.text(d.Title);
-                        let formattedTeam;
-                        try {
-                            const parsedArray = JSON.parse(d.Team.replace(/'/g, '"'));
-                            formattedTeam = parsedArray.join(", ");
-                        } catch (error) {
-                            formattedTeam = d.Team || "Unknown";
-                        }
-                        tooltipTeam.text("Team: " + formattedTeam + " | Year: " + d.ReleaseYear);
-                        tooltipGenre.text("Genre: " + d.Genres);
+                        tooltipTeam.text("Team: " + (d.Team || "Unknown") + " | Year: " + d.ReleaseYear);
+                        tooltipGenre.text("Genre: " + d.Genre);
                         tooltipRating.text("Total Plays: " + comma(d.Plays) + " | Rating: " + d.Rating);
 
                         // Adjust tooltip background size and position (unchanged from your code)
@@ -367,10 +333,11 @@ function bubbleChart() {
                             document.getElementById("tooltipRating").getComputedTextLength(),
                         );
 
+                        var boxWidth = maxSize * 1.2 + 28;
                         tooltipBackground
                             .transition().duration(100)
-                            .attr("x", -0.5 * maxSize * 1.2)
-                            .attr("width", maxSize * 1.2);
+                            .attr("x", -0.5 * boxWidth)
+                            .attr("width", boxWidth);
 
                         tooltipWrapper
                             .transition().duration(100)
@@ -465,38 +432,45 @@ function bubbleChart() {
             var tooltipBackground = tooltipWrapper.append("rect")
                 .attr("class", "tooltip-background")
                 .attr("x", 0)
-                .attr("y", -28)
-                .attr("rx", 10)
-                .attr("ry", 10)
+                .attr("y", -34)
+                .attr("rx", 12)
+                .attr("ry", 12)
                 .attr("width", 0)
-                .attr("height", 112);
+                .attr("height", 152);
 
+            // Font sizes are set explicitly (in viewBox units) so the chart's
+            // SVG tooltip stays readable after the whole chart scales down.
             var tooltipTeam = tooltipWrapper.append("text")
-                .attr("class", "tooltip-director")
+                .attr("class", "tooltip-sub")
                 .attr("id", "tooltipTeam")
-                .attr("y", -4)
+                .attr("y", 0)
+                .style("font-size", "18px")
                 .style("fill", "white")
                 .text("");
 
             var tooltipGenre = tooltipWrapper.append("text")
-                .attr("class", "tooltip-writer")
+                .attr("class", "tooltip-sub")
                 .attr("id", "tooltipGenre")
-                .attr("y", 12)
+                .attr("y", 26)
+                .style("font-size", "18px")
                 .style("fill", "white")
                 .text("");
 
             var tooltipTitle = tooltipWrapper.append("text")
-                .attr("class", "tooltip-film")
+                .attr("class", "tooltip-title")
                 .attr("id", "tooltipTitle")
-                .attr("y", 42)
+                .attr("y", 66)
+                .style("font-size", "27px")
+                .style("font-weight", "600")
                 .style("fill", "white")
                 .text("");
 
             var tooltipRating = tooltipWrapper.append("text")
-                .attr("class", "tooltip-rank")
+                .attr("class", "tooltip-meta")
                 .attr("id", "tooltipRating")
-                .attr("y", 66)
-                .style("fill", "white")
+                .attr("y", 96)
+                .style("font-size", "17px")
+                .style("fill", "#dcdce4")
                 .text("");
         }
     });
